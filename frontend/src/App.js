@@ -36,7 +36,7 @@ function App() {
 
     try {
       const res = await axios.post(
-        "http://localhost:4000/upload",
+        `${process.env.REACT_APP_API_URL}/upload`,
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
@@ -71,7 +71,7 @@ function App() {
   const downloadExcel = async () => {
     try {
       const res = await axios.post(
-        "http://localhost:4000/download",
+        `${process.env.REACT_APP_API_URL}/upload`,
         { items },
         { responseType: "blob" }
       );
