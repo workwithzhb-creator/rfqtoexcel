@@ -14,7 +14,7 @@ app.use(express.json({ limit: "20mb" }));
 
 /* ===================== RATE LIMIT (3 PDFs / DAY / IP) ===================== */
 const uploadLimiter = rateLimit({
-  windowMs: 24 * 60 * 60 * 1000, // 24 hours
+  windowMs: 24 * 60 * 60 * 1000,
   max: 3,
   message: {
     error: "Daily upload limit reached (3 PDFs/day). Please try again tomorrow."
@@ -25,7 +25,7 @@ const uploadLimiter = rateLimit({
 const upload = multer({
   dest: "uploads/",
   limits: {
-    fileSize: 5 * 1024 * 1024 // 5 MB
+    fileSize: 5 * 1024 * 1024
   },
   fileFilter: (req, file, cb) => {
     if (file.mimetype !== "application/pdf") {
@@ -74,8 +74,6 @@ app.post(
       });
 
       let rawContent = response.choices[0].message.content;
-
-      // Remove unsafe control characters (Arabic-safe)
       rawContent = rawContent.replace(
         /[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g,
         ""
@@ -109,12 +107,12 @@ app.post("/download", async (req, res) => {
 
     sheet.columns = [
       { header: "Sl. No", key: "slno", width: 8 },
-      { header: "Description", key: "description", width: 50 },
-      { header: "Size", key: "size", width: 15 },
-      { header: "Quantity", key: "quantity", width: 12 },
+      { header: "Description", key: "description", width: 20 },
+      { header: "Size", key: "size", width: 12 },
+      { header: "Quantity", key: "quantity", width: 10 },
       { header: "UOM", key: "uom", width: 10 },
-      { header: "Unit Price", key: "unit_price", width: 15 },
-      { header: "Total Price", key: "total_price", width: 18 }
+      { header: "Unit Price", key: "unit_price", width: 12 },
+      { header: "Total Price", key: "total_price", width: 14 }
     ];
 
     const startDataRow = 2;
@@ -150,67 +148,36 @@ app.post("/download", async (req, res) => {
 
     totalRow.font = { bold: true };
 
-    sheet.getColumn(4).alignment = { horizontal: "center", vertical: "middle" };
-    sheet.getColumn(5).alignment = { horizontal: "center", vertical: "middle" };
-    sheet.getColumn(6).alignment = { horizontal: "center", vertical: "middle" };
-    sheet.getColumn(7).alignment = { horizontal: "center", vertical: "middle" };
+    /* -------- SINGLE LINE + CENTER ALIGNMENT -------- */
+    sheet.eachRow(row => {
+      row.eachCell(cell => {
+        cell.alignment = {
+          horizontal: "center",
+          vertical: "middle"
+        };
+      });
+      row.height = 24;
+    });
 
-    /* -------- AUTO WRAP + CENTER ALIGNMENT -------- */
-/* -------- AUTO WRAP + SMART ALIGNMENT -------- */
-sheet.eachRow((row, rowNumber) => {
-  let maxLines = 1;
+    /* -------- HEADER STYLE -------- */
+    const headerRow = sheet.getRow(1);
+    headerRow.font = { bold: true, size: 18 };
+    headerRow.height = 28;
 
-  row.eachCell((cell, colNumber) => {
-    let horizontalAlign = "center";
+    headerRow.eachCell(cell => {
+      cell.alignment = {
+        horizontal: "center",
+        vertical: "middle"
+      };
+      cell.border = {
+        top: { style: "thin" },
+        left: { style: "thin" },
+        bottom: { style: "thin" },
+        right: { style: "thin" }
+      };
+    });
 
-    // Header row → center
-    if (rowNumber === 1) {
-      horizontalAlign = "center";
-    }
-    // Description & Size columns → left
-    else if (colNumber === 2 || colNumber === 3) {
-      horizontalAlign = "left";
-    }
-    // Everything else → center
-    else {
-      horizontalAlign = "center";
-    }
-
-    cell.alignment = {
-      horizontal: horizontalAlign,
-      vertical: "middle",
-      wrapText: true
-    };
-
-    if (cell.value && typeof cell.value === "string") {
-      const lines = cell.value.split("\n").length;
-      maxLines = Math.max(maxLines, lines);
-    }
-  });
-
-  row.height = maxLines * 20;
-});
-
-const headerRow = sheet.getRow(1);
-
-// Force proper header height
-headerRow.height = 34;
-
-headerRow.eachCell(cell => {
-  cell.font = { bold: true, size: 18 };
-  cell.alignment = {
-    horizontal: "center",
-    vertical: "middle",
-    wrapText: true
-  };
-  cell.border = {
-    top: { style: "thin" },
-    left: { style: "thin" },
-    bottom: { style: "thin" },
-    right: { style: "thin" }
-  };
-});
-
+    /* -------- DATA BORDERS -------- */
     sheet.eachRow((row, rowNum) => {
       if (rowNum > 1) {
         row.eachCell(cell => {
@@ -223,6 +190,16 @@ headerRow.eachCell(cell => {
           };
         });
       }
+    });
+
+    /* -------- AUTO FIT COLUMN WIDTH (SINGLE LINE) -------- */
+    sheet.columns.forEach(column => {
+      let maxLength = 10;
+      column.eachCell({ includeEmpty: true }, cell => {
+        const val = cell.value ? cell.value.toString() : "";
+        maxLength = Math.max(maxLength, val.length);
+      });
+      column.width = maxLength + 2;
     });
 
     res.setHeader(
@@ -241,25 +218,17 @@ headerRow.eachCell(cell => {
     res.status(500).json({ error: "Excel export failed" });
   }
 });
+
 /* ===================== GLOBAL ERROR HANDLER ===================== */
 app.use((err, req, res, next) => {
-  // Multer: file too large
-  if (err instanceof multer.MulterError) {
-    if (err.code === "LIMIT_FILE_SIZE") {
-      return res.status(400).json({
-        error: "PDF size exceeds 5 MB limit"
-      });
-    }
+  if (err instanceof multer.MulterError && err.code === "LIMIT_FILE_SIZE") {
+    return res.status(400).json({ error: "PDF size exceeds 5 MB limit" });
   }
 
-  // Custom errors (PDF only, etc.)
   if (err.message) {
-    return res.status(400).json({
-      error: err.message
-    });
+    return res.status(400).json({ error: err.message });
   }
 
-  // Fallback
   res.status(500).json({
     error: "Unexpected server error. Please try again."
   });
