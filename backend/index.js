@@ -156,12 +156,28 @@ app.post("/download", async (req, res) => {
     sheet.getColumn(7).alignment = { horizontal: "center", vertical: "middle" };
 
     /* -------- AUTO WRAP + CENTER ALIGNMENT -------- */
-sheet.eachRow(row => {
+/* -------- AUTO WRAP + SMART ALIGNMENT -------- */
+sheet.eachRow((row, rowNumber) => {
   let maxLines = 1;
 
-  row.eachCell(cell => {
+  row.eachCell((cell, colNumber) => {
+    let horizontalAlign = "center";
+
+    // Header row → center
+    if (rowNumber === 1) {
+      horizontalAlign = "center";
+    }
+    // Description & Size columns → left
+    else if (colNumber === 2 || colNumber === 3) {
+      horizontalAlign = "left";
+    }
+    // Everything else → center
+    else {
+      horizontalAlign = "center";
+    }
+
     cell.alignment = {
-      horizontal: "center",
+      horizontal: horizontalAlign,
       vertical: "middle",
       wrapText: true
     };
@@ -172,7 +188,6 @@ sheet.eachRow(row => {
     }
   });
 
-  // Auto-adjust row height based on content
   row.height = maxLines * 20;
 });
 
