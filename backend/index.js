@@ -191,16 +191,25 @@ sheet.eachRow((row, rowNumber) => {
   row.height = maxLines * 20;
 });
 
-    const headerRow = sheet.getRow(1);
-    headerRow.eachCell(cell => {
-      cell.font = { bold: true, size: 18 };
-      cell.border = {
-        top: { style: "thin" },
-        left: { style: "thin" },
-        bottom: { style: "thin" },
-        right: { style: "thin" }
-      };
-    });
+const headerRow = sheet.getRow(1);
+
+// Force proper header height
+headerRow.height = 34;
+
+headerRow.eachCell(cell => {
+  cell.font = { bold: true, size: 18 };
+  cell.alignment = {
+    horizontal: "center",
+    vertical: "middle",
+    wrapText: true
+  };
+  cell.border = {
+    top: { style: "thin" },
+    left: { style: "thin" },
+    bottom: { style: "thin" },
+    right: { style: "thin" }
+  };
+});
 
     sheet.eachRow((row, rowNum) => {
       if (rowNum > 1) {
