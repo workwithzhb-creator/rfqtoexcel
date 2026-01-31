@@ -155,15 +155,26 @@ app.post("/download", async (req, res) => {
     sheet.getColumn(6).alignment = { horizontal: "center", vertical: "middle" };
     sheet.getColumn(7).alignment = { horizontal: "center", vertical: "middle" };
 
-    sheet.eachRow(row => {
-      row.eachCell(cell => {
-        cell.alignment = {
-          ...cell.alignment,
-          wrapText: true,
-          vertical: "middle"
-        };
-      });
-    });
+    /* -------- AUTO WRAP + CENTER ALIGNMENT -------- */
+sheet.eachRow(row => {
+  let maxLines = 1;
+
+  row.eachCell(cell => {
+    cell.alignment = {
+      horizontal: "center",
+      vertical: "middle",
+      wrapText: true
+    };
+
+    if (cell.value && typeof cell.value === "string") {
+      const lines = cell.value.split("\n").length;
+      maxLines = Math.max(maxLines, lines);
+    }
+  });
+
+  // Auto-adjust row height based on content
+  row.height = maxLines * 20;
+});
 
     const headerRow = sheet.getRow(1);
     headerRow.eachCell(cell => {
