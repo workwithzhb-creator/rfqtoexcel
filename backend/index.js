@@ -205,6 +205,29 @@ app.post("/download", async (req, res) => {
     res.status(500).json({ error: "Excel export failed" });
   }
 });
+/* ===================== GLOBAL ERROR HANDLER ===================== */
+app.use((err, req, res, next) => {
+  // Multer: file too large
+  if (err instanceof multer.MulterError) {
+    if (err.code === "LIMIT_FILE_SIZE") {
+      return res.status(400).json({
+        error: "PDF size exceeds 5 MB limit"
+      });
+    }
+  }
+
+  // Custom errors (PDF only, etc.)
+  if (err.message) {
+    return res.status(400).json({
+      error: err.message
+    });
+  }
+
+  // Fallback
+  res.status(500).json({
+    error: "Unexpected server error. Please try again."
+  });
+});
 
 /* ===================== SERVER ===================== */
 app.listen(4000, () => {
