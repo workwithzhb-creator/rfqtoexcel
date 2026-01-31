@@ -10,22 +10,33 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: "20mb" }));
 
-const upload = multer({ dest: "uploads/" });
+/* ===================== MULTER WITH PROTECTION ===================== */
+const upload = multer({
+  dest: "uploads/",
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5 MB
+  },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype !== "application/pdf") {
+      cb(new Error("Only PDF files are allowed"), false);
+    } else {
+      cb(null, true);
+    }
+  }
+});
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 
-// ---------------- PDF UPLOAD & AI EXTRACTION ----------------
+/* ===================== PDF UPLOAD ===================== */
 app.post("/upload", upload.single("pdf"), async (req, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ error: "No PDF uploaded" });
-    }
+    if (!req.file) return res.status(400).json({ items: [] });
 
     const buffer = fs.readFileSync(req.file.path);
     const pdfData = await pdfParse(buffer);
-    const text = pdfData.text;
+    const text = pdfData.text || "";
 
     const systemPrompt = fs.readFileSync("./ai/system_prompt.txt", "utf8");
     const extractionPromptTemplate = fs.readFileSync(
@@ -49,36 +60,30 @@ app.post("/upload", upload.single("pdf"), async (req, res) => {
 
     let rawContent = response.choices[0].message.content;
 
-// Remove control characters that break JSON
-// Remove only truly dangerous control characters, keep Unicode (Arabic-safe)
-rawContent = rawContent.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, "");
+    // Remove dangerous control characters (Arabic-safe)
+    rawContent = rawContent.replace(
+      /[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g,
+      ""
+    );
 
-// Try to extract JSON block only
-const jsonMatch = rawContent.match(/\{[\s\S]*\}/);
+    const jsonMatch = rawContent.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) return res.json({ items: [] });
 
-if (!jsonMatch) {
-  console.error("AI response did not contain JSON:", rawContent);
-  return res.json({ items: [] });
-}
+    let parsed;
+    try {
+      parsed = JSON.parse(jsonMatch[0]);
+    } catch {
+      return res.json({ items: [] });
+    }
 
-let parsed;
-try {
-  parsed = JSON.parse(jsonMatch[0]);
-} catch (err) {
-  console.error("JSON PARSE FAILED:", jsonMatch[0]);
-  return res.json({ items: [] });
-}
-
-res.json({ items: parsed.items || [] });
-
-
+    res.json({ items: parsed.items || [] });
   } catch (err) {
-    console.error("BACKEND ERROR:", err);
-    res.status(500).json({ error: "Backend processing failed" });
+    console.error("UPLOAD ERROR:", err);
+    res.status(500).json({ items: [] });
   }
 });
 
-// ---------------- EXCEL DOWNLOAD ----------------
+/* ===================== EXCEL DOWNLOAD ===================== */
 app.post("/download", async (req, res) => {
   try {
     const items = req.body.items || [];
@@ -86,7 +91,6 @@ app.post("/download", async (req, res) => {
     const workbook = new ExcelJS.Workbook();
     const sheet = workbook.addWorksheet("Materials");
 
-    // -------- COLUMNS --------
     sheet.columns = [
       { header: "Sl. No", key: "slno", width: 8 },
       { header: "Description", key: "description", width: 50 },
@@ -97,40 +101,32 @@ app.post("/download", async (req, res) => {
       { header: "Total Price", key: "total_price", width: 18 }
     ];
 
-    let rowNumber = 1;
     const startDataRow = 2;
+    let rowNumber = 1;
 
-    // -------- DATA ROWS --------
-    items
-      .filter((i) => i.include)
-      .forEach((i) => {
-        const excelRowNumber = startDataRow + rowNumber - 1;
+    items.filter(i => i.include).forEach(i => {
+      const excelRow = startDataRow + rowNumber - 1;
 
-        sheet.addRow({
-          slno: rowNumber,
-          description: i.description_raw,
-          size: i.size_raw,
-          quantity: Number(i.quantity_raw) || 0,
-          uom: i.uom_raw,
-          unit_price: null,
-          total_price: {
-            formula: `IF(F${excelRowNumber}="","",F${excelRowNumber}*D${excelRowNumber})`
-          }
-        });
-
-        rowNumber++;
+      sheet.addRow({
+        slno: rowNumber,
+        description: i.description_raw,
+        size: i.size_raw,
+        quantity: Number(i.quantity_raw) || 0,
+        uom: i.uom_raw,
+        unit_price: "",
+        total_price: {
+          formula: `IF(F${excelRow}="","",F${excelRow}*D${excelRow})`
+        }
       });
 
-    // -------- GRAND TOTAL --------
+      rowNumber++;
+    });
+
     const lastDataRow = startDataRow + rowNumber - 2;
 
     const totalRow = sheet.addRow({
       slno: "",
       description: "GRAND TOTAL",
-      size: "",
-      quantity: "",
-      uom: "",
-      unit_price: "",
       total_price: {
         formula: `SUM(G${startDataRow}:G${lastDataRow})`
       }
@@ -138,61 +134,24 @@ app.post("/download", async (req, res) => {
 
     totalRow.font = { bold: true };
 
-    // -------- CENTER ALIGN ALL CELLS --------
-    sheet.eachRow((row) => {
-      row.eachCell((cell) => {
+    sheet.getColumn(4).alignment = { horizontal: "center", vertical: "middle" };
+    sheet.getColumn(5).alignment = { horizontal: "center", vertical: "middle" };
+    sheet.getColumn(6).alignment = { horizontal: "center", vertical: "middle" };
+    sheet.getColumn(7).alignment = { horizontal: "center", vertical: "middle" };
+
+    sheet.eachRow(row => {
+      row.eachCell(cell => {
         cell.alignment = {
-          horizontal: "center",
-          vertical: "middle",
-          wrapText: true
+          ...cell.alignment,
+          wrapText: true,
+          vertical: "middle"
         };
       });
     });
 
-    // -------- AUTO COLUMN WIDTH --------
-    sheet.columns.forEach((column) => {
-      let maxLength = 10;
-
-      column.eachCell({ includeEmpty: true }, (cell) => {
-        const value = cell.value ? cell.value.toString() : "";
-        maxLength = Math.max(maxLength, value.length);
-      });
-
-      column.width = maxLength + 4;
-    });
-
-    // -------- HEADER FONT --------
     const headerRow = sheet.getRow(1);
-    headerRow.eachCell((cell) => {
-      cell.font = {
-        bold: true,
-        size: 18
-      };
-    });
-
-    // -------- DATA FONT --------
-    sheet.eachRow((row, rowNum) => {
-      if (rowNum !== 1) {
-        row.eachCell((cell) => {
-          cell.font = {
-            size: 14,
-            bold: cell.font?.bold || false
-          };
-        });
-      }
-    });
-    // -------- FORCE UNIT PRICE FONT SIZE (COLUMN F) --------
-sheet.getColumn("F").eachCell({ includeEmpty: true }, (cell, rowNumber) => {
-    if (rowNumber !== 1) {
-      cell.font = {
-        size: 14,
-        bold: false
-      };
-    }
-  });  
-
-    // -------- HEADER BORDER (SOLID) --------
-    headerRow.eachCell((cell) => {
+    headerRow.eachCell(cell => {
+      cell.font = { bold: true, size: 18 };
       cell.border = {
         top: { style: "thin" },
         left: { style: "thin" },
@@ -201,10 +160,10 @@ sheet.getColumn("F").eachCell({ includeEmpty: true }, (cell, rowNumber) => {
       };
     });
 
-    // -------- DATA + TOTAL BORDER (DOTTED) --------
     sheet.eachRow((row, rowNum) => {
       if (rowNum > 1) {
-        row.eachCell((cell) => {
+        row.eachCell(cell => {
+          cell.font = { size: 14 };
           cell.border = {
             top: { style: "dotted" },
             left: { style: "dotted" },
@@ -215,7 +174,6 @@ sheet.getColumn("F").eachCell({ includeEmpty: true }, (cell, rowNumber) => {
       }
     });
 
-    // -------- SEND FILE --------
     res.setHeader(
       "Content-Type",
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -227,13 +185,13 @@ sheet.getColumn("F").eachCell({ includeEmpty: true }, (cell, rowNumber) => {
 
     await workbook.xlsx.write(res);
     res.end();
-
   } catch (err) {
     console.error("EXCEL ERROR:", err);
     res.status(500).json({ error: "Excel export failed" });
   }
 });
 
+/* ===================== SERVER ===================== */
 app.listen(4000, () => {
   console.log("Backend running on http://localhost:4000");
 });
