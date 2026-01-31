@@ -7,6 +7,7 @@ function App() {
   const [progress, setProgress] = useState(0);
   const [errorMsg, setErrorMsg] = useState("");
 
+  // Progress simulation
   useEffect(() => {
     if (!loading) return;
 
@@ -22,6 +23,7 @@ function App() {
     const file = e.target.files[0];
     if (!file) return;
 
+    // GA event
     if (window.gtag) {
       window.gtag("event", "pdf_uploaded");
     }
@@ -91,8 +93,10 @@ function App() {
 
   return (
     <div style={{ minHeight: "100vh", background: "#f6f7fb" }}>
+      {/* HEADER */}
       <div style={header}>RFQ to Excel Converter</div>
 
+      {/* HERO */}
       <div style={hero}>
         <h1 style={title}>RFQ to Excel Converter</h1>
         <p style={tagline}>
@@ -101,9 +105,15 @@ function App() {
 
         <label style={uploadBtn}>
           Upload RFQ / PR PDF
-          <input type="file" accept="application/pdf" onChange={uploadPDF} hidden />
+          <input
+            type="file"
+            accept="application/pdf"
+            onChange={uploadPDF}
+            hidden
+          />
         </label>
 
+        {/* PROGRESS (CENTERED, FIXED WIDTH) */}
         {loading && (
           <div style={progressWrapper}>
             <p style={progressText}>Reading and analyzing document…</p>
@@ -116,6 +126,7 @@ function App() {
         {errorMsg && <p style={error}>{errorMsg}</p>}
       </div>
 
+      {/* HOW IT WORKS */}
       <div style={howItWorks}>
         <h2>How it works</h2>
         <div style={steps}>
@@ -125,70 +136,73 @@ function App() {
         </div>
       </div>
 
+      {/* REVIEW TABLE */}
       {items.length > 0 && (
         <div style={toolCard}>
-          <table style={table}>
-            <thead>
-              <tr>
-                <th>Include</th>
-                <th>Description</th>
-                <th>Size</th>
-                <th>Qty</th>
-                <th>UOM</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((item, i) => (
-                <tr key={i}>
-                  <td>
-                    <input
-                      type="checkbox"
-                      checked={item.include}
-                      onChange={(e) =>
-                        updateItem(i, "include", e.target.checked)
-                      }
-                    />
-                  </td>
-                  <td>
-                    <input
-                      style={input}
-                      value={item.description_raw || ""}
-                      onChange={(e) =>
-                        updateItem(i, "description_raw", e.target.value)
-                      }
-                    />
-                  </td>
-                  <td>
-                    <input
-                      style={input}
-                      value={item.size_raw || ""}
-                      onChange={(e) =>
-                        updateItem(i, "size_raw", e.target.value)
-                      }
-                    />
-                  </td>
-                  <td>
-                    <input
-                      style={input}
-                      value={item.quantity_raw || ""}
-                      onChange={(e) =>
-                        updateItem(i, "quantity_raw", e.target.value)
-                      }
-                    />
-                  </td>
-                  <td>
-                    <input
-                      style={input}
-                      value={item.uom_raw || ""}
-                      onChange={(e) =>
-                        updateItem(i, "uom_raw", e.target.value)
-                      }
-                    />
-                  </td>
+          <div style={{ overflowX: "auto" }}>
+            <table style={table}>
+              <thead>
+                <tr>
+                  <th>Include</th>
+                  <th>Description</th>
+                  <th>Size</th>
+                  <th>Qty</th>
+                  <th>UOM</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {items.map((item, i) => (
+                  <tr key={i}>
+                    <td style={{ textAlign: "center" }}>
+                      <input
+                        type="checkbox"
+                        checked={item.include}
+                        onChange={(e) =>
+                          updateItem(i, "include", e.target.checked)
+                        }
+                      />
+                    </td>
+                    <td>
+                      <input
+                        style={input}
+                        value={item.description_raw || ""}
+                        onChange={(e) =>
+                          updateItem(i, "description_raw", e.target.value)
+                        }
+                      />
+                    </td>
+                    <td>
+                      <input
+                        style={input}
+                        value={item.size_raw || ""}
+                        onChange={(e) =>
+                          updateItem(i, "size_raw", e.target.value)
+                        }
+                      />
+                    </td>
+                    <td>
+                      <input
+                        style={input}
+                        value={item.quantity_raw || ""}
+                        onChange={(e) =>
+                          updateItem(i, "quantity_raw", e.target.value)
+                        }
+                      />
+                    </td>
+                    <td>
+                      <input
+                        style={input}
+                        value={item.uom_raw || ""}
+                        onChange={(e) =>
+                          updateItem(i, "uom_raw", e.target.value)
+                        }
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
           <button style={downloadBtn} onClick={downloadExcel}>
             Download Excel
@@ -199,6 +213,7 @@ function App() {
   );
 }
 
+/* ---------- SMALL COMPONENT ---------- */
 const Step = ({ n, t, d }) => (
   <div style={stepCard}>
     <div style={stepNumber}>{n}</div>
@@ -209,30 +224,131 @@ const Step = ({ n, t, d }) => (
   </div>
 );
 
-/* ===================== STYLES ===================== */
+/* ---------- STYLES (ORIGINAL RESTORED) ---------- */
 
-const header = { padding: 16, background: "#fff", fontWeight: 600 };
-const hero = { textAlign: "center", padding: 60 };
-const title = { fontSize: 40 };
-const tagline = { color: "#555", marginBottom: 20 };
-const uploadBtn = { padding: 16, background: "#2563eb", color: "#fff" };
+const header = {
+  padding: "16px 32px",
+  background: "#fff",
+  borderBottom: "1px solid #e5e7eb",
+  fontWeight: 600
+};
 
-const progressWrapper = { marginTop: 20 };
-const progressText = { fontSize: 14 };
-const progressBg = { height: 8, background: "#ddd" };
-const progressFill = { height: "100%", background: "#2563eb" };
+const hero = {
+  textAlign: "center",
+  padding: "80px 20px"
+};
 
-const error = { color: "red", marginTop: 10 };
+const title = { fontSize: 40, marginBottom: 12 };
+const tagline = { fontSize: 18, color: "#4b5563", marginBottom: 32 };
 
-const howItWorks = { background: "#fff", padding: 40 };
-const steps = { display: "flex", justifyContent: "center", gap: 20 };
+const uploadBtn = {
+  padding: "16px 36px",
+  background: "#2563eb",
+  color: "#fff",
+  borderRadius: 10,
+  cursor: "pointer",
+  fontSize: 18
+};
 
-const toolCard = { background: "#fff", padding: 30, margin: 30 };
-const table = { width: "100%", borderCollapse: "collapse" };
-const input = { width: "100%" };
-const downloadBtn = { marginTop: 20, padding: 12 };
+const progressWrapper = {
+  marginTop: 24,
+  width: 320,
+  marginLeft: "auto",
+  marginRight: "auto"
+};
 
-const stepCard = { display: "flex", gap: 10 };
-const stepNumber = { background: "#2563eb", color: "#fff", padding: 10 };
+const progressText = {
+  fontSize: 14,
+  color: "#6b7280",
+  marginBottom: 8,
+  textAlign: "center"
+};
+
+const progressBg = {
+  height: 8,
+  background: "#e5e7eb",
+  borderRadius: 6,
+  overflow: "hidden"
+};
+
+const progressFill = {
+  height: "100%",
+  background: "#2563eb",
+  transition: "width 0.3s ease"
+};
+
+const error = {
+  color: "#dc2626",
+  marginTop: 20,
+  textAlign: "center"
+};
+
+const howItWorks = {
+  background: "#fff",
+  padding: "60px 20px",
+  textAlign: "center"
+};
+
+const steps = {
+  display: "flex",
+  justifyContent: "center",
+  gap: 24,
+  marginTop: 32,
+  flexWrap: "wrap"
+};
+
+const stepCard = {
+  display: "flex",
+  gap: 16,
+  background: "#f9fafb",
+  padding: 24,
+  borderRadius: 12,
+  width: 280,
+  textAlign: "left"
+};
+
+const stepNumber = {
+  width: 32,
+  height: 32,
+  borderRadius: "50%",
+  background: "#2563eb",
+  color: "#fff",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  fontWeight: 600
+};
+
+const toolCard = {
+  maxWidth: 1200,
+  margin: "40px auto",
+  background: "#fff",
+  padding: 32,
+  borderRadius: 12,
+  boxShadow: "0 10px 25px rgba(0,0,0,0.06)"
+};
+
+const table = {
+  width: "100%",
+  borderCollapse: "collapse",
+  marginBottom: 24
+};
+
+const input = {
+  width: "100%",
+  padding: "6px 8px",
+  border: "1px solid #d1d5db",
+  borderRadius: 6
+};
+
+const downloadBtn = {
+  padding: "16px 40px",
+  background: "#16a34a",
+  color: "#fff",
+  border: "none",
+  borderRadius: 10,
+  fontSize: 18,
+  cursor: "pointer"
+};
 
 export default App;
