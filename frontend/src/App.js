@@ -7,7 +7,6 @@ function App() {
   const [progress, setProgress] = useState(0);
   const [errorMsg, setErrorMsg] = useState("");
 
-  // Progress simulation
   useEffect(() => {
     if (!loading) return;
 
@@ -23,7 +22,6 @@ function App() {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Google Analytics event
     if (window.gtag) {
       window.gtag("event", "pdf_uploaded");
     }
@@ -103,12 +101,7 @@ function App() {
 
         <label style={uploadBtn}>
           Upload RFQ / PR PDF
-          <input
-            type="file"
-            accept="application/pdf"
-            onChange={uploadPDF}
-            hidden
-          />
+          <input type="file" accept="application/pdf" onChange={uploadPDF} hidden />
         </label>
 
         {loading && (
@@ -134,70 +127,68 @@ function App() {
 
       {items.length > 0 && (
         <div style={toolCard}>
-          <div style={{ overflowX: "auto" }}>
-            <table style={table}>
-              <thead>
-                <tr>
-                  <th>Include</th>
-                  <th>Description</th>
-                  <th>Size</th>
-                  <th>Qty</th>
-                  <th>UOM</th>
+          <table style={table}>
+            <thead>
+              <tr>
+                <th>Include</th>
+                <th>Description</th>
+                <th>Size</th>
+                <th>Qty</th>
+                <th>UOM</th>
+              </tr>
+            </thead>
+            <tbody>
+              {items.map((item, i) => (
+                <tr key={i}>
+                  <td>
+                    <input
+                      type="checkbox"
+                      checked={item.include}
+                      onChange={(e) =>
+                        updateItem(i, "include", e.target.checked)
+                      }
+                    />
+                  </td>
+                  <td>
+                    <input
+                      style={input}
+                      value={item.description_raw || ""}
+                      onChange={(e) =>
+                        updateItem(i, "description_raw", e.target.value)
+                      }
+                    />
+                  </td>
+                  <td>
+                    <input
+                      style={input}
+                      value={item.size_raw || ""}
+                      onChange={(e) =>
+                        updateItem(i, "size_raw", e.target.value)
+                      }
+                    />
+                  </td>
+                  <td>
+                    <input
+                      style={input}
+                      value={item.quantity_raw || ""}
+                      onChange={(e) =>
+                        updateItem(i, "quantity_raw", e.target.value)
+                      }
+                    />
+                  </td>
+                  <td>
+                    <input
+                      style={input}
+                      value={item.uom_raw || ""}
+                      onChange={(e) =>
+                        updateItem(i, "uom_raw", e.target.value)
+                      }
+                    />
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {items.map((item, i) => (
-                  <tr key={i}>
-                    <td style={{ textAlign: "center" }}>
-                      <input
-                        type="checkbox"
-                        checked={item.include}
-                        onChange={(e) =>
-                          updateItem(i, "include", e.target.checked)
-                        }
-                      />
-                    </td>
-                    <td>
-                      <input
-                        style={input}
-                        value={item.description_raw || ""}
-                        onChange={(e) =>
-                          updateItem(i, "description_raw", e.target.value)
-                        }
-                      />
-                    </td>
-                    <td>
-                      <input
-                        style={input}
-                        value={item.size_raw || ""}
-                        onChange={(e) =>
-                          updateItem(i, "size_raw", e.target.value)
-                        }
-                      />
-                    </td>
-                    <td>
-                      <input
-                        style={input}
-                        value={item.quantity_raw || ""}
-                        onChange={(e) =>
-                          updateItem(i, "quantity_raw", e.target.value)
-                        }
-                      />
-                    </td>
-                    <td>
-                      <input
-                        style={input}
-                        value={item.uom_raw || ""}
-                        onChange={(e) =>
-                          updateItem(i, "uom_raw", e.target.value)
-                        }
-                      />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </table>
 
           <button style={downloadBtn} onClick={downloadExcel}>
             Download Excel
@@ -218,5 +209,30 @@ const Step = ({ n, t, d }) => (
   </div>
 );
 
-/* styles unchanged */
+/* ===================== STYLES ===================== */
+
+const header = { padding: 16, background: "#fff", fontWeight: 600 };
+const hero = { textAlign: "center", padding: 60 };
+const title = { fontSize: 40 };
+const tagline = { color: "#555", marginBottom: 20 };
+const uploadBtn = { padding: 16, background: "#2563eb", color: "#fff" };
+
+const progressWrapper = { marginTop: 20 };
+const progressText = { fontSize: 14 };
+const progressBg = { height: 8, background: "#ddd" };
+const progressFill = { height: "100%", background: "#2563eb" };
+
+const error = { color: "red", marginTop: 10 };
+
+const howItWorks = { background: "#fff", padding: 40 };
+const steps = { display: "flex", justifyContent: "center", gap: 20 };
+
+const toolCard = { background: "#fff", padding: 30, margin: 30 };
+const table = { width: "100%", borderCollapse: "collapse" };
+const input = { width: "100%" };
+const downloadBtn = { marginTop: 20, padding: 12 };
+
+const stepCard = { display: "flex", gap: 10 };
+const stepNumber = { background: "#2563eb", color: "#fff", padding: 10 };
+
 export default App;
