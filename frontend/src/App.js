@@ -9,12 +9,10 @@ function App() {
 
   useEffect(() => {
     if (!loading) return;
-
     setProgress(10);
     const interval = setInterval(() => {
-      setProgress((prev) => (prev >= 90 ? prev : prev + 10));
+      setProgress((p) => (p >= 90 ? p : p + 10));
     }, 400);
-
     return () => clearInterval(interval);
   }, [loading]);
 
@@ -37,27 +35,18 @@ function App() {
         { headers: { "Content-Type": "multipart/form-data" } }
       );
 
-      const extracted = res.data.items || [];
-
-      if (extracted.length === 0) {
-        setErrorMsg(
-          "This PDF appears to be scanned or image-based. Please upload a text-based RFQ or PR PDF."
-        );
+      const extractedItems = res.data.items || [];
+      if (!extractedItems.length) {
+        setErrorMsg("This PDF appears to be scanned or image-based.");
       } else {
-        setItems(extracted.map((i) => ({ ...i, include: true })));
+        setItems(extractedItems.map((i) => ({ ...i, include: true })));
       }
     } catch {
-      setErrorMsg("Error while processing PDF. Please try again.");
+      setErrorMsg("Failed to process PDF.");
     }
 
     setProgress(100);
     setTimeout(() => setLoading(false), 300);
-  };
-
-  const updateItem = (index, field, value) => {
-    const updated = [...items];
-    updated[index][field] = value;
-    setItems(updated);
   };
 
   const downloadExcel = async () => {
@@ -68,28 +57,21 @@ function App() {
         { responseType: "blob" }
       );
 
-      const url = window.URL.createObjectURL(
-        new Blob([res.data], {
-          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        })
-      );
-
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", "materials.xlsx");
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "materials.xlsx";
+      a.click();
     } catch {
       alert("Failed to download Excel");
     }
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "#f6f7fb" }}>
-      <div style={header}>RFQ to Excel Converter</div>
+    <div>
+      <header style={header}>RFQ to Excel Converter</header>
 
-      <div style={hero}>
+      <section style={hero}>
         <h1 style={title}>RFQ to Excel Converter</h1>
         <p style={tagline}>
           Turn messy construction RFQs into clean, supplier-ready Excel — instantly
@@ -97,69 +79,31 @@ function App() {
 
         <label style={uploadBtn}>
           Upload RFQ / PR PDF
-          <input type="file" accept="application/pdf" onChange={uploadPDF} hidden />
+          <input type="file" accept="application/pdf" hidden onChange={uploadPDF} />
         </label>
 
         {loading && (
-          <div style={{ margin: "20px auto", width: 320 }}>
-            <p style={{ fontSize: 14, color: "#6b7280" }}>
-              Reading and understanding document…
-            </p>
+          <div style={{ width: 320, marginTop: 20 }}>
             <div style={progressBg}>
               <div style={{ ...progressFill, width: `${progress}%` }} />
             </div>
           </div>
         )}
 
-        {errorMsg && (
-          <p style={{ color: "#dc2626", marginTop: 16, textAlign: "center" }}>
-            {errorMsg}
-          </p>
-        )}
-      </div>
+        {errorMsg && <p style={{ color: "#dc2626", marginTop: 20 }}>{errorMsg}</p>}
+      </section>
 
-      <div style={howItWorks}>
+      <section style={how}>
         <h2>How it works</h2>
         <div style={steps}>
           <Step n="1" t="Upload RFQ PDF" d="Any construction RFQ or PR" />
           <Step n="2" t="Review Items" d="Description, size, qty & UOM" />
-          <Step n="3" t="Download Excel" d="Clean, supplier-ready sheet" />
+          <Step n="3" t="Download Excel" d="Clean supplier-ready sheet" />
         </div>
-      </div>
+      </section>
 
       {items.length > 0 && (
-        <div style={toolCard}>
-          <table style={table}>
-            <thead>
-              <tr>
-                <th>Include</th>
-                <th>Description</th>
-                <th>Size</th>
-                <th>Qty</th>
-                <th>UOM</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((i, idx) => (
-                <tr key={idx}>
-                  <td>
-                    <input
-                      type="checkbox"
-                      checked={i.include}
-                      onChange={(e) =>
-                        updateItem(idx, "include", e.target.checked)
-                      }
-                    />
-                  </td>
-                  <td><input value={i.description_raw || ""} onChange={(e) => updateItem(idx, "description_raw", e.target.value)} /></td>
-                  <td><input value={i.size_raw || ""} onChange={(e) => updateItem(idx, "size_raw", e.target.value)} /></td>
-                  <td><input value={i.quantity_raw || ""} onChange={(e) => updateItem(idx, "quantity_raw", e.target.value)} /></td>
-                  <td><input value={i.uom_raw || ""} onChange={(e) => updateItem(idx, "uom_raw", e.target.value)} /></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
+        <div style={tool}>
           <button style={downloadBtn} onClick={downloadExcel}>
             Download Excel
           </button>
@@ -170,8 +114,8 @@ function App() {
 }
 
 const Step = ({ n, t, d }) => (
-  <div style={stepCard}>
-    <div style={stepNum}>{n}</div>
+  <div style={step}>
+    <div style={circle}>{n}</div>
     <div>
       <strong>{t}</strong>
       <p>{d}</p>
@@ -179,20 +123,96 @@ const Step = ({ n, t, d }) => (
   </div>
 );
 
-/* STYLES */
-const header = { padding: 16, background: "#fff", fontWeight: 600 };
-const hero = { textAlign: "center", padding: 60 };
-const title = { fontSize: 36 };
-const tagline = { fontSize: 18, color: "#555" };
-const uploadBtn = { padding: 16, background: "#2563eb", color: "#fff", borderRadius: 8, cursor: "pointer" };
-const progressBg = { height: 8, background: "#e5e7eb", borderRadius: 4 };
-const progressFill = { height: "100%", background: "#2563eb" };
-const howItWorks = { background: "#fff", padding: 40, textAlign: "center" };
-const steps = { display: "flex", justifyContent: "center", gap: 24 };
-const stepCard = { background: "#f9fafb", padding: 20, borderRadius: 8, display: "flex", gap: 12 };
-const stepNum = { width: 32, height: 32, background: "#2563eb", color: "#fff", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center" };
-const toolCard = { maxWidth: 1100, margin: "40px auto", background: "#fff", padding: 32 };
-const table = { width: "100%", borderCollapse: "collapse" };
-const downloadBtn = { padding: 14, background: "#16a34a", color: "#fff", borderRadius: 8, cursor: "pointer" };
+/* ---------- STYLES ---------- */
+
+const header = {
+  padding: "16px 32px",
+  fontWeight: 600,
+  background: "#fff",
+  borderBottom: "1px solid #e5e7eb"
+};
+
+const hero = {
+  textAlign: "center",
+  padding: "80px 20px"
+};
+
+const title = { fontSize: 42, marginBottom: 12 };
+const tagline = { color: "#4b5563", fontSize: 18, marginBottom: 32 };
+
+const uploadBtn = {
+  background: "#2563eb",
+  color: "#fff",
+  padding: "16px 36px",
+  borderRadius: 10,
+  cursor: "pointer",
+  fontSize: 18,
+  fontWeight: 500
+};
+
+const progressBg = {
+  height: 8,
+  background: "#e5e7eb",
+  borderRadius: 6,
+  overflow: "hidden"
+};
+
+const progressFill = {
+  height: "100%",
+  background: "#2563eb",
+  transition: "width 0.3s"
+};
+
+const how = {
+  background: "#fff",
+  padding: "60px 20px",
+  textAlign: "center"
+};
+
+const steps = {
+  display: "flex",
+  justifyContent: "center",
+  gap: 24,
+  marginTop: 32,
+  flexWrap: "wrap"
+};
+
+const step = {
+  display: "flex",
+  gap: 16,
+  background: "#f9fafb",
+  padding: 24,
+  borderRadius: 12,
+  width: 280,
+  textAlign: "left"
+};
+
+const circle = {
+  width: 32,
+  height: 32,
+  borderRadius: "50%",
+  background: "#2563eb",
+  color: "#fff",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  fontWeight: 600
+};
+
+const tool = {
+  display: "flex",
+  justifyContent: "center",
+  padding: 40
+};
+
+const downloadBtn = {
+  background: "#16a34a",
+  color: "#fff",
+  padding: "16px 40px",
+  borderRadius: 10,
+  border: "none",
+  fontSize: 18,
+  cursor: "pointer"
+};
 
 export default App;
