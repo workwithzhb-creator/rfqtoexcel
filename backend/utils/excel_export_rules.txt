@@ -1,0 +1,25 @@
+Excel Export Rules (STRICT)
+
+Columns (EXACT ORDER):
+1. Description
+2. Size
+3. Quantity
+4. UOM
+
+Rules:
+- No extra columns
+- No formatting complexity
+- No colors
+- No formulas
+- No headers from PDF
+- No metadata
+
+Behavior:
+- One review row = one Excel row
+- Unticked rows are excluded
+- Edited values are final
+
+File Output:
+- .xlsx format
+- Filename auto-generated
+- One sheet only

@@ -1,0 +1,35 @@
+From the document below, identify all line items that represent
+materials, equipment, or construction-related items that have
+some form of quantity.
+
+For each identified item, extract the following as raw text
+exactly as found or inferred from the document:
+
+- description_raw: the material description text
+- quantity_raw: the quantity text (do not convert)
+- uom_raw: the unit of measurement text
+- size_raw: size or dimension text if present
+
+Rules:
+- Do not invent items that are not implied in the document
+- Do not clean, normalize, or correct any values
+- Do not remove ambiguity
+- If size is part of description, still extract it separately
+- If any field is missing, return it as an empty string
+- Return all possible items, even if confidence is low
+
+Return ONLY valid JSON in the following format:
+
+{
+  "items": [
+    {
+      "description_raw": "",
+      "quantity_raw": "",
+      "uom_raw": "",
+      "size_raw": ""
+    }
+  ]
+}
+
+Document:
+<<<PDF_TEXT_HERE>>>

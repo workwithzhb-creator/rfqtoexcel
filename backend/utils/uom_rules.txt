@@ -1,0 +1,23 @@
+UOM Normalization Rules (CHATGPT-LIKE + SAFE)
+
+- AI decides what text represents a UOM (uom_raw)
+- System must NOT reject unknown UOMs
+- System must NOT force a fixed list
+
+Normalization purpose:
+- Output consistency only
+
+Examples of silent normalization:
+- pcs, PC, piece → PCS
+- nos, no, numbers → NOS
+- meter, mtr, m → M
+- lm, l.m, length → LM
+- kg, kgs → KG
+
+Rules:
+- Preserve original meaning
+- If UOM meaning is ambiguous (e.g. "L"):
+  - Keep original text
+  - Mark LOW CONFIDENCE
+- Never invent UOM
+- Never change quantity based on UOM

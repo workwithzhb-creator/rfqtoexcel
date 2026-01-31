@@ -1,0 +1,24 @@
+Quantity Normalization Rules (STRICT)
+
+- Quantity comes ONLY from AI output (quantity_raw)
+- System must NEVER infer quantity from description
+- Quantity must be numeric or numeric-decimal
+
+Allowed examples:
+- 10
+- 12.5
+- 1000
+
+Rejected examples (flag for review):
+- approx 10
+- as required
+- lot
+- NIL
+- one set
+
+Rules:
+- Remove commas (1,000 → 1000)
+- Trim spaces
+- If quantity cannot be parsed to number → mark LOW CONFIDENCE
+- Do NOT delete item
+- Do NOT guess quantity

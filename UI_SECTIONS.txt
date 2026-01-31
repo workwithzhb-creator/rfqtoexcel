@@ -1,0 +1,69 @@
+UI SECTIONS — ONE PAGE ONLY
+
+SECTION 1: HEADER
+- Product name
+- One-line description:
+  "Upload a construction PDF. Download clean Excel."
+
+No buttons.
+No menus.
+
+--------------------------------
+
+SECTION 2: UPLOAD AREA
+- Large upload box
+- Text:
+  "Upload RFQ / PR / BOQ PDF"
+- Drag & drop + click upload
+- Accept PDF only
+
+On upload:
+- Automatically start processing
+- No confirmation popup
+
+--------------------------------
+
+SECTION 3: PROCESSING STATE
+- Simple spinner
+- Text:
+  "Reading and understanding document…"
+
+No progress bar.
+No percentages.
+No technical info.
+
+--------------------------------
+
+SECTION 4: REVIEW TABLE
+- Appears automatically after processing
+- Table columns:
+  - Description
+  - Size
+  - Quantity
+  - UOM
+  - Include (checkbox)
+
+Rules:
+- All rows checked by default
+- Inline editing enabled
+- No empty cells allowed
+- Highlight low-confidence rows subtly
+
+--------------------------------
+
+SECTION 5: DOWNLOAD
+- Single button:
+  "Download Excel"
+
+Disabled until:
+- At least one row is selected
+- No invalid quantity cells
+
+--------------------------------
+
+SECTION 6: FOOTER
+- Small text:
+  "AI-assisted extraction. Please review before use."
+
+No links.
+No branding clutter.

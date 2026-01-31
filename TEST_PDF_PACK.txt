@@ -1,0 +1,40 @@
+REAL-WORLD TEST PDF PACK
+
+TEST 1 — CLEAN RFQ
+- Simple table
+- One line per item
+EXPECTED:
+- Near-perfect extraction
+- Minimal review
+
+TEST 2 — MESSY RFQ (MOST IMPORTANT)
+- Description broken across 3–4 lines
+- Quantity on separate line
+- UOM on another line
+EXPECTED:
+- ONE logical item
+- Correct grouping
+- Review fixes only wording
+
+TEST 3 — BOQ
+- Long descriptions
+- Units like LM, MTR, NOS
+EXPECTED:
+- AI groups items correctly
+- No splitting of items
+
+TEST 4 — VENDOR QUOTATION
+- Prices everywhere
+- Headers / footers
+EXPECTED:
+- Prices ignored
+- Only material rows extracted
+
+TEST 5 — SCANNED PDF
+- OCR noise
+EXPECTED:
+- Partial extraction is OK
+- Review table still usable
+
+PASS RULE:
+- User does NOT need to retype from scratch

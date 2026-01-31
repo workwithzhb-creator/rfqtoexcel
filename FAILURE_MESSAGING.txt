@@ -1,0 +1,27 @@
+FAILURE & TRUST MESSAGING (MVP)
+
+Purpose:
+- Never blame AI
+- Never say "error"
+- Never say "failed"
+
+Allowed System Messages:
+- "Please review highlighted rows"
+- "Some items need confirmation"
+- "Low confidence detected"
+
+Rules:
+- AI output is always shown
+- Ambiguity is handled via review, not blocking
+- User is never forced to re-upload PDF
+
+What NOT to show:
+- Technical errors
+- Model names
+- Tokens / limits
+- Confidence percentages
+
+Tone:
+- Calm
+- Professional
+- Engineer-friendly

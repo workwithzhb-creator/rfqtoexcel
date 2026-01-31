@@ -1,0 +1,18 @@
+Size Handling Rules (STRICT PRESERVATION)
+
+- Size comes from size_raw (AI output)
+- System may extract size from description ONLY if AI already detected it
+- Preserve exact text format
+
+Allowed:
+- 3/4"
+- DN50
+- 160 mm
+- 50x50x5 mm
+
+Rules:
+- Do NOT convert units
+- Do NOT calculate
+- Do NOT standardize format
+- If size is unclear → leave empty
+- Size must never affect quantity or UOM

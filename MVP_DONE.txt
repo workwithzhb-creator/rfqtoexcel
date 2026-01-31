@@ -1,0 +1,15 @@
+MVP IS DONE WHEN:
+
+- Any construction PDF can be uploaded
+- AI understands material items like ChatGPT
+- Multi-line items are handled correctly
+- Review table is fast and usable
+- Excel output is clean and consistent
+- No rules or templates are exposed to users
+
+NOT REQUIRED FOR MVP:
+- Login
+- History
+- Analytics
+- Pricing
+- ERP integration

@@ -1,0 +1,24 @@
+FIRST TEST CHECKLIST (MVP VALIDATION)
+
+Test PDFs must include:
+- One clean RFQ
+- One messy RFQ
+- One BOQ
+- One scanned PDF
+- One vendor quotation
+
+Validation Rules:
+- Items split across multiple rows become ONE item
+- Quantity in one row + UOM in another still works
+- No prices appear in Excel
+- No ERP text appears in Excel
+- No empty cells in review table
+
+Fail Conditions:
+- System splits one logical item into multiple rows
+- System guesses quantity or UOM
+- Excel includes extra columns
+- User must manually re-enter data
+
+Pass Condition:
+- You trust the Excel after < 1 minute review

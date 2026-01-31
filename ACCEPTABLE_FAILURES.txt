@@ -1,0 +1,18 @@
+ACCEPTABLE FAILURES (MVP REALITY)
+
+These are NOT product failures:
+
+- AI misses 1–2 items in very messy PDFs
+- Size not extracted correctly
+- Ambiguous UOM flagged for review
+- OCR errors in scanned PDFs
+
+These ARE product failures:
+
+- One logical item split into multiple rows
+- System guesses quantity or UOM
+- User forced to manually rebuild items
+- Excel includes non-material text
+
+Rule:
+- If review fixes it in < 1 minute → ACCEPTABLE

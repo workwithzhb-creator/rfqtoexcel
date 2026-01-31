@@ -1,0 +1,18 @@
+FREE MVP LAUNCH SCOPE
+
+Included:
+- Unlimited PDF uploads
+- Review table
+- Excel download
+
+Not included:
+- User accounts
+- Saved history
+- Pricing
+- Billing
+- Usage limits
+
+Goal:
+- Validate usefulness
+- Observe real PDFs
+- Improve extraction accuracy

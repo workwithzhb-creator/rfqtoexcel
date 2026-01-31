@@ -1,0 +1,16 @@
+SUCCESS CRITERIA (MVP)
+
+- Engineers use it without training
+- 80–90% of PDFs produce usable Excel
+- Review takes less than 1 minute
+- Users trust the output
+- Users voluntarily share it with colleagues
+
+Failure is NOT:
+- AI being imperfect
+- Manual review being required
+
+Failure IS:
+- Forcing users to retype data
+- Breaking multi-line items
+- Guessing quantities or UOMs

@@ -1,0 +1,16 @@
+ONBOARDING COPY (MINIMAL)
+
+Main line (near upload):
+"Upload your construction PDF."
+
+Subtext:
+"The system understands materials even when
+items are split across multiple lines."
+
+Review hint (above table):
+"Please review extracted items before download."
+
+That's it.
+No tutorials.
+No walkthroughs.
+No tooltips.

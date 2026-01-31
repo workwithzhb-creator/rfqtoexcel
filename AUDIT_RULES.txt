@@ -1,0 +1,15 @@
+AUDIT & SAFETY RULES
+
+- Original AI output must be stored internally
+- User-edited values overwrite AI output
+- Excel is generated ONLY from user-approved data
+- System must log:
+  - Upload timestamp
+  - AI extraction result
+  - User edits
+  - Final export
+
+Purpose:
+- Traceability
+- Trust
+- Protection against disputes

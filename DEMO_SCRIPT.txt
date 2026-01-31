@@ -1,0 +1,34 @@
+DEMO SCRIPT (60–90 SECONDS)
+
+1. Upload any construction PDF (RFQ / PR / BOQ)
+   - No template
+   - No settings
+   - No selections
+
+2. Say:
+   "This PDF is messy and not made for Excel.
+    Watch what happens."
+
+3. Processing screen appears.
+
+4. Review table appears.
+
+5. Say:
+   "The system reads like ChatGPT.
+    Even if one item is split across lines,
+    it understands it as one material."
+
+6. Scroll quickly.
+   - Show description, size, qty, UOM.
+   - Edit one row casually.
+
+7. Say:
+   "You don't fix things.
+    You only approve."
+
+8. Click "Download Excel".
+
+9. Open Excel.
+
+10. Say:
+    "This is ready for procurement."

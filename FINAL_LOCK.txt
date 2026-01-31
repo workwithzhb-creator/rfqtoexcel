@@ -1,0 +1,19 @@
+FINAL MVP LOCK
+
+This product is a TOOL, not a platform.
+
+If any of the following are proposed,
+they are automatically rejected:
+
+- Accounts
+- Pricing
+- Dashboards
+- History
+- AI settings
+- PDF templates
+
+Success is defined by:
+- Trust
+- Speed
+- Clean Excel
+- Minimal thinking by user

@@ -1,0 +1,19 @@
+Review the same document again carefully.
+
+Look specifically for:
+- Tables
+- Bullet points
+- Multi-line descriptions
+- Items split across pages
+- Items written in notes, remarks, or footers
+
+Extract any additional material, equipment, or construction-related
+items that may have been missed earlier.
+
+Rules:
+- Do not repeat items already extracted
+- Do not clean or normalize values
+- Do not invent missing information
+
+Return ONLY additional items in the same JSON format
+used previously.

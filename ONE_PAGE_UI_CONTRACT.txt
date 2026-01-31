@@ -1,0 +1,22 @@
+ONE-PAGE UI CONTRACT (NON-NEGOTIABLE)
+
+This product MUST be a single-page tool.
+
+The page contains ONLY the following sections
+in this exact vertical order:
+
+1. Header
+2. Upload Area
+3. Processing State
+4. Review Table
+5. Download Button
+6. Footer (minimal)
+
+NO other pages.
+NO navigation.
+NO login.
+NO pricing.
+NO settings.
+
+If a feature requires another page,
+it is NOT part of MVP.

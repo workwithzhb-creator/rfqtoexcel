@@ -1,0 +1,24 @@
+FRONTEND DEV RULES (STRICT)
+
+- Single page only
+- No routing
+- No authentication
+- No user state persistence
+- No local storage history
+
+UI Philosophy:
+- Calm
+- Clean
+- Fast
+- Engineer-friendly
+
+DO NOT ADD:
+- Sidebars
+- Modals
+- Popups
+- Help screens
+- Animations
+
+The UI must feel like:
+"Upload → Review → Download"
+Nothing more.

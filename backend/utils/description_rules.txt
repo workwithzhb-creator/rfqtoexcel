@@ -1,0 +1,25 @@
+Description Cleaning Rules (NON-DESTRUCTIVE)
+
+- Description comes from description_raw
+- System must NEVER split or merge items
+- System must NEVER remove technical meaning
+
+Remove from description:
+- Quantity values
+- UOM text
+- Prices
+- Currency (SAR, USD, INR, etc.)
+- ERP / workflow text
+- Page numbers, headers, footers
+
+Preserve in description:
+- Material type
+- Technical wording order
+- Standards (ASTM, BS, SCH, etc.)
+- Sizes if originally present
+
+Rules:
+- Do NOT rephrase
+- Do NOT shorten
+- Do NOT translate
+- Do NOT guess missing words

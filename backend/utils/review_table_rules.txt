@@ -1,0 +1,40 @@
+Review Table Rules (MVP – NON NEGOTIABLE)
+
+Purpose:
+- Review is confirmation, not data entry
+- Review must NEVER require rebuilding items
+
+General Rules:
+- Review table is auto-filled ONLY from system output
+- No empty cells allowed
+- One AI item = one review row
+- System must NEVER split or merge rows at review stage
+
+Editable Fields:
+- Description (text edit)
+- Size (text edit)
+- Quantity (numeric edit)
+- UOM (text edit)
+
+Allowed User Actions:
+- Edit text inline
+- Correct quantity
+- Correct UOM
+- Tick / untick item for export
+
+Disallowed User Actions:
+- Adding new rows
+- Deleting system-generated structure
+- Reordering logic that changes item meaning
+
+Behavior Rules:
+- Unticked rows are excluded from Excel
+- Edited values overwrite system values
+- Original AI output is preserved internally for audit
+
+Performance Rule:
+- 30–40 items must be reviewable in under 1 minute
+
+Legal / Trust Rule:
+- Final Excel represents user-approved data
+- AI output alone is never final

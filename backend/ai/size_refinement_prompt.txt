@@ -1,0 +1,16 @@
+For each item below, analyze the description_raw text
+and extract any size, diameter, thickness, length, or dimension.
+
+Examples include:
+- 3/4", 1/2", DN50, DN100
+- 160 mm, 4 inch
+- 50x50x5 mm
+- 6 m length
+
+Rules:
+- Preserve the exact size text as written
+- Do not guess or invent sizes
+- If no size is found, leave size_raw unchanged
+- Do not modify description_raw, quantity_raw, or uom_raw
+
+Return the same items with size_raw filled where possible.
