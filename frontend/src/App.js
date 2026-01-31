@@ -23,6 +23,11 @@ function App() {
     const file = e.target.files[0];
     if (!file) return;
 
+    // ✅ GOOGLE ANALYTICS EVENT — PDF UPLOADED
+    if (window.gtag) {
+      window.gtag("event", "pdf_uploaded");
+    }
+
     setItems([]);
     setErrorMsg("");
     setLoading(true);
@@ -62,6 +67,11 @@ function App() {
   };
 
   const downloadExcel = async () => {
+    // ✅ GOOGLE ANALYTICS EVENT — EXCEL DOWNLOADED
+    if (window.gtag) {
+      window.gtag("event", "excel_downloaded");
+    }
+
     try {
       const res = await axios.post(
         `${process.env.REACT_APP_API_URL}/download`,
