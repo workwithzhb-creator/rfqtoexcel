@@ -5,12 +5,22 @@ const fs = require("fs");
 const pdfParse = require("pdf-parse");
 const OpenAI = require("openai");
 const ExcelJS = require("exceljs");
+const rateLimit = require("express-rate-limit");
 
 const app = express();
 app.use(cors());
 app.use(express.json({ limit: "20mb" }));
 
-/* ===================== MULTER WITH PROTECTION ===================== */
+/* ===================== RATE LIMIT (3 PDFs / DAY / IP) ===================== */
+const uploadLimiter = rateLimit({
+  windowMs: 24 * 60 * 60 * 1000, // 24 hours
+  max: 3,
+  message: {
+    error: "Daily upload limit reached (3 PDFs/day). Please try again tomorrow."
+  }
+});
+
+/* ===================== MULTER (PDF SIZE + TYPE PROTECTION) ===================== */
 const upload = multer({
   dest: "uploads/",
   limits: {
@@ -30,58 +40,63 @@ const openai = new OpenAI({
 });
 
 /* ===================== PDF UPLOAD ===================== */
-app.post("/upload", upload.single("pdf"), async (req, res) => {
-  try {
-    if (!req.file) return res.status(400).json({ items: [] });
-
-    const buffer = fs.readFileSync(req.file.path);
-    const pdfData = await pdfParse(buffer);
-    const text = pdfData.text || "";
-
-    const systemPrompt = fs.readFileSync("./ai/system_prompt.txt", "utf8");
-    const extractionPromptTemplate = fs.readFileSync(
-      "./ai/item_extraction_prompt.txt",
-      "utf8"
-    );
-
-    const extractionPrompt = extractionPromptTemplate.replace(
-      "<<<PDF_TEXT_HERE>>>",
-      text
-    );
-
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: extractionPrompt }
-      ],
-      temperature: 0
-    });
-
-    let rawContent = response.choices[0].message.content;
-
-    // Remove dangerous control characters (Arabic-safe)
-    rawContent = rawContent.replace(
-      /[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g,
-      ""
-    );
-
-    const jsonMatch = rawContent.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) return res.json({ items: [] });
-
-    let parsed;
+app.post(
+  "/upload",
+  uploadLimiter,
+  upload.single("pdf"),
+  async (req, res) => {
     try {
-      parsed = JSON.parse(jsonMatch[0]);
-    } catch {
-      return res.json({ items: [] });
-    }
+      if (!req.file) return res.status(400).json({ items: [] });
 
-    res.json({ items: parsed.items || [] });
-  } catch (err) {
-    console.error("UPLOAD ERROR:", err);
-    res.status(500).json({ items: [] });
+      const buffer = fs.readFileSync(req.file.path);
+      const pdfData = await pdfParse(buffer);
+      const text = pdfData.text || "";
+
+      const systemPrompt = fs.readFileSync("./ai/system_prompt.txt", "utf8");
+      const extractionPromptTemplate = fs.readFileSync(
+        "./ai/item_extraction_prompt.txt",
+        "utf8"
+      );
+
+      const extractionPrompt = extractionPromptTemplate.replace(
+        "<<<PDF_TEXT_HERE>>>",
+        text
+      );
+
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: extractionPrompt }
+        ],
+        temperature: 0
+      });
+
+      let rawContent = response.choices[0].message.content;
+
+      // Remove unsafe control characters (Arabic-safe)
+      rawContent = rawContent.replace(
+        /[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g,
+        ""
+      );
+
+      const jsonMatch = rawContent.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) return res.json({ items: [] });
+
+      let parsed;
+      try {
+        parsed = JSON.parse(jsonMatch[0]);
+      } catch {
+        return res.json({ items: [] });
+      }
+
+      res.json({ items: parsed.items || [] });
+    } catch (err) {
+      console.error("UPLOAD ERROR:", err);
+      res.status(500).json({ items: [] });
+    }
   }
-});
+);
 
 /* ===================== EXCEL DOWNLOAD ===================== */
 app.post("/download", async (req, res) => {
