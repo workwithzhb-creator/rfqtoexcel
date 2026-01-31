@@ -71,22 +71,28 @@ function App() {
   const downloadExcel = async () => {
     try {
       const res = await axios.post(
-        `${process.env.REACT_APP_API_URL}/upload`,
+        `${process.env.REACT_APP_API_URL}/download`,
         { items },
         { responseType: "blob" }
       );
-
-      const url = window.URL.createObjectURL(new Blob([res.data]));
+  
+      const url = window.URL.createObjectURL(
+        new Blob([res.data], {
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        })
+      );
+  
       const link = document.createElement("a");
       link.href = url;
       link.setAttribute("download", "materials.xlsx");
       document.body.appendChild(link);
       link.click();
       link.remove();
-    } catch {
+    } catch (err) {
+      console.error(err);
       alert("Failed to download Excel");
     }
-  };
+  };  
 
   return (
     <div style={{ minHeight: "100vh", background: "#f6f7fb" }}>
